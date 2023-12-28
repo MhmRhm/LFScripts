@@ -549,4 +549,38 @@ rm -rf bison-3.8.2
 #8.34
 tar -xpvf grep-3.11.tar.xz
 cd grep-3.11
+sed -i "s/echo/#echo/" src/egrep.sh
+./configure --prefix=/usr
+make -j10
+make check
+make install
+cd ..
+rm -rf grep-3.11
+#8.35
+tar -xpvf bash-5.2.15.tar.gz
+cd bash-5.2.15
+./configure --prefix=/usr --without-bash-malloc --with-installed-readline --docdir=/usr/share/doc/bash-5.2.15
+make -j10
+#su -s /usr/bin/expect tester << EOF
+#set timeout -1
+#spawn make tests
+#expect eof
+#lassign [wait] _ _ _ value
+#exit $value
+#EOF
+make install
+exec /usr/bin/bash --login
+cd ..
+rm -rf bash-5.2.15
+#8.36
+tar -xpvf libtool-2.4.7.tar.xz
+cd libtool-2.4.7
+./configure --prefix=/usr
+make -j10
+make -k check TESTSUITEFLAGS=-j10 
+make install
+rm -fv /usr/lib/libltdl.a
+cd ..
+rm -rf libtool-2.4.7
+#8.37
 ```
