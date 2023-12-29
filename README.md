@@ -583,4 +583,63 @@ rm -fv /usr/lib/libltdl.a
 cd ..
 rm -rf libtool-2.4.7
 #8.37
+tar -xpvf gdbm-1.23.tar.gz
+cd gdbm-1.23
+./configure --prefix=/usr --disable-static --enable-libgdbm-compat
+make -j10
+make check
+make install
+cd ..
+rm -rf gdbm-1.23
+#8.38
+tar -xpvf gperf-3.1.tar.gz
+cd gperf-3.1
+./configure --prefix=/usr --docdir=/usr/share/doc/gperf-3.1
+make -j10
+make -j1 check
+make install
+cd ..
+rm -rf gperf-3.1
+#8.39
+tar -xpvf expat-2.5.0.tar.xz
+cd expat-2.5.0
+./configure --prefix=/usr --disable-static --docdir=/usr/share/doc/expat-2.5.0
+make -j10
+make check
+make install
+install -v -m644 doc/*.{html,css} /usr/share/doc/expat-2.5.0
+cd ..
+rm -rf expat-2.5.0
+#8.40
+tar -xpvf inetutils-2.4.tar.xz
+cd inetutils-2.4
+./configure --prefix=/usr --bindir=/usr/bin --localstatedir=/var --disable-logger --disable-whois --disable-rcp --disable-rexec --disable-rlogin --disable-rsh --disable-servers
+make -j10
+make check
+make install
+mv -v /usr/{,s}bin/ifconfig
+cd ..
+rm -rf inetutils-2.4
+#8.41
+tar -xpvf less-643.tar.gz
+cd less-643
+./configure --prefix=/usr --sysconfdir=/etc
+make -j10
+make check
+make install
+cd ..
+rm -rf less-643
+#8.42
+tar -xpvf perl-5.38.0.tar.xz
+cd perl-5.38.0
+export BUILD_ZLIB=False
+export BUILD_BZIP2=0
+sh Configure -des -Dprefix=/usr -Dvendorprefix=/usr -Dprivlib=/usr/lib/perl5/5.38/core_perl -Darchlib=/usr/lib/perl5/5.38/core_perl -Dsitelib=/usr/lib/perl5/5.38/site_perl -Dsitearch=/usr/lib/perl5/5.38/site_perl -Dvendorlib=/usr/lib/perl5/5.38/vendor_perl -Dvendorarch=/usr/lib/perl5/5.38/vendor_perl -Dman1dir=/usr/share/man/man1 -Dman3dir=/usr/share/man/man3 -Dpager="/usr/bin/less -isR" -Duseshrplib -Dusethreads
+make -j10
+make test
+make install
+unset BUILD_ZLIB BUILD_BZIP2
+cd ..
+rm -rf perl-5.38.0
+#8.43
 ```
