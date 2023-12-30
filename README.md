@@ -94,6 +94,7 @@ else
    echo "OK: nproc reports $(nproc) logical cores are available"
 fi
 ```
+
 chap8-install.sh
 ```bash
 #8.3
@@ -577,7 +578,7 @@ tar -xpvf libtool-2.4.7.tar.xz
 cd libtool-2.4.7
 ./configure --prefix=/usr
 make -j10
-make -k check TESTSUITEFLAGS=-j10 
+TESTSUITEFLAGS=-j10 make -k check
 make install
 rm -fv /usr/lib/libltdl.a
 cd ..
@@ -642,4 +643,129 @@ unset BUILD_ZLIB BUILD_BZIP2
 cd ..
 rm -rf perl-5.38.0
 #8.43
+tar -xpvf XML-Parser-2.46.tar.gz
+cd XML-Parser-2.46
+perl Makefile.PL
+make -j10
+make test
+make install
+cd ..
+rm -rf XML-Parser-2.46
+#8.44
+tar -xpvf intltool-0.51.0.tar.gz
+cd intltool-0.51.0
+sed -i 's:\\\${:\\\$\\{:' intltool-update.in
+./configure --prefix=/usr
+make -j10
+make check
+make install
+install -v -Dm644 doc/I18N-HOWTO /usr/share/doc/intltool-0.51.0/I18N-HOWTO
+cd ..
+rm -rf intltool-0.51.0
+#8.45
+tar -xpvf autoconf-2.71.tar.xz
+cd autoconf-2.71
+sed -e 's/SECONDS|/&SHLVL|/' -e '/BASH_ARGV=/a\ /^SHLVL=/ d' -i.orig tests/local.at
+./configure --prefix=/usr
+make -j10
+TESTSUITEFLAGS=-j10 make check
+make install
+cd ..
+rm -rf autoconf-2.71
+#8.46
+tar -xpvf automake-1.16.5.tar.xz
+cd automake-1.16.5
+./configure --prefix=/usr --docdir=/usr/share/doc/automake-1.16.5
+make -j10
+make -j10 check
+make install
+cd ..
+rm -rf automake-1.16.5
+#8.47
+tar -xpvf openssl-3.1.2.tar.gz
+cd openssl-3.1.2
+./config --prefix=/usr --openssldir=/etc/ssl --libdir=lib shared zlib-dynamic
+make -j10
+make test
+sed -i '/INSTALL_LIBS/s/libcrypto.a libssl.a//' Makefile
+make MANSUFFIX=ssl install
+mv -v /usr/share/doc/openssl /usr/share/doc/openssl-3.1.2
+cp -vfr doc/* /usr/share/doc/openssl-3.1.2
+cd ..
+rm -rf openssl-3.1.2
+#8.48
+tar -xpvf kmod-30.tar.xz
+cd kmod-30
+./configure --prefix=/usr --sysconfdir=/etc --with-openssl --with-xz --with-zstd --with-zlib
+make -j10
+make install
+for target in depmod insmod modinfo modprobe rmmod; do ln -sfv ../bin/kmod /usr/sbin/$target; done
+ln -sfv kmod /usr/bin/lsmod
+cd ..
+rm -rf kmod-30
+#8.49
+tar -xpvf elfutils-0.189.tar.bz2
+cd elfutils-0.189
+./configure --prefix=/usr --disable-debuginfod --enable-libdebuginfod=dummy
+make -j10
+make check
+make -C libelf install
+install -vm644 config/libelf.pc /usr/lib/pkgconfig
+rm /usr/lib/libelf.a
+cd ..
+rm -rf elfutils-0.189
+#8.50
+tar -xpvf libffi-3.4.4.tar.gz
+cd libffi-3.4.4
+./configure --prefix=/usr --disable-static --libdir=/usr/lib --disable-multi-os-directory --with-gcc-arch=native
+make -j10
+make check
+make install
+cd ..
+rm -rf libffi-3.4.4
+#8.51
+tar -xpvf Python-3.11.4.tar.xz
+cd Python-3.11.4
+./configure --prefix=/usr --enable-shared --with-system-expat --with-system-ffi --enable-optimizations
+make -j10
+make install
+install -v -dm755 /usr/share/doc/python-3.11.4/html
+tar --strip-components=1 --no-same-owner --no-same-permissions -C /usr/share/doc/python-3.11.4/html -xvf ../python-3.11.4-docs-html.tar.bz2
+cd ..
+rm -rf Python-3.11.4
+#8.52
+tar -xpvf flit_core-3.9.0.tar.gz
+cd flit_core-3.9.0
+pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+pip3 install --no-index --no-user --find-links dist flit_core
+cd ..
+rm -rf flit_core-3.9.0
+#8.53
+tar -xpvf wheel-0.41.1.tar.gz
+cd wheel-0.41.1
+pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+pip3 install --no-index --find-links=dist wheel
+cd ..
+rm -rf wheel-0.41.1
+#8.54
+tar -xpvf ninja-1.11.1.tar.gz
+cd ninja-1.11.1
+python3 configure.py --bootstrap
+./ninja ninja_test
+./ninja_test --gtest_filter=-SubprocessTest.SetWithLots
+install -vm755 ninja /usr/bin/
+install -vDm644 misc/bash-completion /usr/share/bash-completion/completions/ninja
+install -vDm644 misc/zsh-completion /usr/share/zsh/site-functions/_ninja
+cd ..
+rm -rf ninja-1.11.1
+#8.55
+tar -xpvf meson-1.2.1.tar.gz
+cd meson-1.2.1
+pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+pip3 install --no-index --find-links dist meson
+install -vDm644 data/shell-completions/bash/meson /usr/share/bash-completion/completions/meson
+install -vDm644 data/shell-completions/zsh/_meson /usr/share/zsh/site-functions/_meson
+cd ..
+rm -rf meson-1.2.1
+#8.56
 ```
