@@ -768,4 +768,215 @@ install -vDm644 data/shell-completions/zsh/_meson /usr/share/zsh/site-functions/
 cd ..
 rm -rf meson-1.2.1
 #8.56
+tar -xpvf coreutils-9.3.tar.xz
+cd coreutils-9.3
+patch -Np1 -i ../coreutils-9.3-i18n-1.patch
+autoreconf -fiv
+FORCE_UNSAFE_CONFIGURE=1 ./configure --prefix=/usr --enable-no-install-program=kill,uptime
+make -j10
+make NON_ROOT_USERNAME=tester check-root
+groupadd -g 102 dummy -U tester
+chown -Rv tester .
+su tester -c "PATH=$PATH make RUN_EXPENSIVE_TESTS=yes check"
+groupdel dummy
+make install
+mv -v /usr/bin/chroot /usr/sbin
+mv -v /usr/share/man/man1/chroot.1 /usr/share/man/man8/chroot.8
+sed -i 's/"1"/"8"/' /usr/share/man/man8/chroot.8
+cd ..
+rm -rf coreutils-9.3
+#8.57
+tar -xpvf check-0.15.2.tar.gz
+cd check-0.15.2
+./configure --prefix=/usr --disable-static
+make -j10
+make check
+make docdir=/usr/share/doc/check-0.15.2 install
+cd ..
+rm -rf check-0.15.2
+#8.58
+tar -xpvf diffutils-3.10.tar.xz
+cd diffutils-3.10
+./configure --prefix=/usr
+make -j10
+make check
+make install
+cd ..
+rm -rf diffutils-3.10
+#8.59
+tar -xpvf gawk-5.2.2.tar.xz
+cd gawk-5.2.2
+sed -i 's/extras//' Makefile.in
+./configure --prefix=/usr
+make -j10
+chown -Rv tester .
+su tester -c "PATH=$PATH make check"
+make LN='ln -f' install
+ln -sv gawk.1 /usr/share/man/man1/awk.1
+mkdir -pv /usr/share/doc/gawk-5.2.2
+cp -v doc/{awkforai.txt,*.{eps,pdf,jpg}} /usr/share/doc/gawk-5.2.2
+cd ..
+rm -rf gawk-5.2.2
+#8.60
+tar -xpvf findutils-4.9.0.tar.xz
+cd findutils-4.9.0
+./configure --prefix=/usr --localstatedir=/var/lib/locate
+make -j10
+chown -Rv tester .
+su tester -c "PATH=$PATH make check"
+make install
+cd ..
+rm -rf findutils-4.9.0
+#8.61
+tar -xpvf groff-1.23.0.tar.gz
+cd groff-1.23.0
+PAGE=A4 ./configure --prefix=/usr
+make -j10
+make check
+make install
+cd ..
+rm -rf groff-1.23.0
+#8.62
+tar -xpvf grub-2.06.tar.xz
+cd grub-2.06
+unset {C,CPP,CXX,LD}FLAGS
+patch -Np1 -i ../grub-2.06-upstream_fixes-1.patch
+./configure --prefix=/usr --sysconfdir=/etc --disable-efiemu --disable-werror
+make -j10
+make install
+mv -v /etc/bash_completion.d/grub /usr/share/bash-completion/completions
+cd ..
+rm -rf grub-2.06
+#8.63
+tar -xpvf gzip-1.12.tar.xz
+cd gzip-1.12
+./configure --prefix=/usr
+make -j10
+make check
+make install
+cd ..
+rm -rf gzip-1.12
+#8.64
+tar -xpvf iproute2-6.4.0.tar.xz
+cd iproute2-6.4.0
+sed -i /ARPD/d Makefile
+rm -fv man/man8/arpd.8
+make NETNS_RUN_DIR=/run/netns
+make SBINDIR=/usr/sbin install
+mkdir -pv /usr/share/doc/iproute2-6.4.0
+cp -v COPYING README* /usr/share/doc/iproute2-6.4.0
+cd ..
+rm -rf iproute2-6.4.0
+#8.65
+tar -xpvf kbd-2.6.1.tar.xz
+cd kbd-2.6.1
+patch -Np1 -i ../kbd-2.6.1-backspace-1.patch
+sed -i '/RESIZECONS_PROGS=/s/yes/no/' configure
+sed -i 's/resizecons.8 //' docs/man/man8/Makefile.in
+./configure --prefix=/usr --disable-vlock
+make -j10
+make check
+make install
+cp -R -v docs/doc -T /usr/share/doc/kbd-2.6.1
+cd ..
+rm -rf kbd-2.6.1
+#8.66
+tar -xpvf libpipeline-1.5.7.tar.gz 
+cd libpipeline-1.5.7
+./configure --prefix=/usr
+make -j10
+make check
+make install
+cd ..
+rm -rf libpipeline-1.5.7
+#8.67
+tar -xpvf make-4.4.1.tar.gz
+cd make-4.4.1
+./configure --prefix=/usr
+make -j10
+chown -Rv tester .
+su tester -c "PATH=$PATH make check"
+make install
+cd ..
+rm -rf make-4.4.1
+#8.68
+tar -xpvf patch-2.7.6.tar.xz
+cd patch-2.7.6
+./configure --prefix=/usr
+make -j10
+make check
+make install
+cd ..
+rm -rf patch-2.7.6
+#8.69
+tar -xvpf tar-1.35.tar.xz
+cd tar-1.35
+FORCE_UNSAFE_CONFIGURE=1 ./configure --prefix=/usr
+make -j10
+TESTSUITEFLAGS=-j10 make check
+make install
+make -C doc install-html docdir=/usr/share/doc/tar-1.35
+cd ..
+rm -rf tar-1.35
+#8.70
+tar -xpvf texinfo-7.0.3.tar.xz
+cd texinfo-7.0.3
+./configure --prefix=/usr
+make -j10
+make check
+make install
+make TEXMF=/usr/share/texmf install-tex
+pushd /usr/share/info
+  rm -v dir
+  for f in *
+    do install-info $f dir 2>/dev/null
+  done
+popd
+cd ..
+rm -rf texinfo-7.0.3
+#8.71
+tar -xpvf vim-9.0.1677.tar.gz
+cd vim-9.0.1677
+echo '#define SYS_VIMRC_FILE "/etc/vimrc"' >> src/feature.h
+./configure --prefix=/usr
+make -j10
+chown -Rv tester .
+su tester -c "LANG=en_US.UTF-8 make -j1 test" &> vim-test.log
+make install
+ln -sv vim /usr/bin/vi
+for L in /usr/share/man/{,*/}man1/vim.1; do
+  ln -sv vim.1 $(dirname $L)/vi.1
+done
+ln -sv ../vim/vim90/doc /usr/share/doc/vim-9.0.1677
+cat > /etc/vimrc << "EOF"
+" Begin /etc/vimrc
+" Ensure defaults are set before customizing settings, not after
+source $VIMRUNTIME/defaults.vim
+let skip_defaults_vim=1
+set nocompatible
+set backspace=2
+set mouse=
+syntax on
+if (&term == "xterm") || (&term == "putty")
+  set background=dark
+endif
+" End /etc/vimrc
+EOF
+cd ..
+rm -rf vim-9.0.1677
+#8.72
+tar -xpvf MarkupSafe-2.1.3.tar.gz
+cd MarkupSafe-2.1.3
+pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+pip3 install --no-index --no-user --find-links dist Markupsafe
+cd ..
+rm -rf MarkupSafe-2.1.3
+#8.73
+tar -xpvf Jinja2-3.1.2.tar.gz
+cd Jinja2-3.1.2
+pip3 wheel -w dist --no-build-isolation --no-deps $PWD
+pip3 install --no-index --no-user --find-links dist Jinja2
+cd ..
+rm -rf Jinja2-3.1.2
+#8.74
 ```
