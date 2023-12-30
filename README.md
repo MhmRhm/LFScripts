@@ -96,7 +96,7 @@ fi
 ```
 
 pre-chroot.sh
-```
+```bash
 mkdir -pv $LFS/{dev,proc,sys,run}
 mount -v --bind /dev $LFS/dev
 mount -v --bind /dev/pts $LFS/dev/pts
@@ -112,7 +112,7 @@ chroot "$LFS" /usr/bin/env -i HOME=/root TERM="$TERM" PS1='(lfs chroot) \u:\w\$ 
 ```
 
 backup.sh
-```
+```bash
 mountpoint -q $LFS/dev/shm && umount $LFS/dev/shm
 umount $LFS/dev/pts
 umount $LFS/{sys,proc,run,dev}
