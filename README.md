@@ -95,6 +95,31 @@ else
 fi
 ```
 
+pre-chroot.sh
+```
+mkdir -pv $LFS/{dev,proc,sys,run}
+mount -v --bind /dev $LFS/dev
+mount -v --bind /dev/pts $LFS/dev/pts
+mount -vt proc proc $LFS/proc
+mount -vt sysfs sysfs $LFS/sys
+mount -vt tmpfs tmpfs $LFS/run
+if [ -h $LFS/dev/shm ]; then
+    mkdir -pv $LFS/$(readlink $LFS/dev/shm)
+else
+    mount -t tmpfs -o nosuid,nodev tmpfs $LFS/dev/shm
+fi
+chroot "$LFS" /usr/bin/env -i HOME=/root TERM="$TERM" PS1='(lfs chroot) \u:\w\$ ' PATH=/usr/bin:/usr/sbin /bin/bash --login
+```
+
+backup.sh
+```
+mountpoint -q $LFS/dev/shm && umount $LFS/dev/shm
+umount $LFS/dev/pts
+umount $LFS/{sys,proc,run,dev}
+cd $LFS
+tar -cJpf $HOME/lfs-12.0_$(date +%F_%H.%M.%S).tar.xz .
+```
+
 chap8-install.sh
 ```bash
 #8.3
