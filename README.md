@@ -914,6 +914,7 @@ cd tar-1.35
 FORCE_UNSAFE_CONFIGURE=1 ./configure --prefix=/usr
 make -j10
 TESTSUITEFLAGS=-j10 make check
+echo 'LFS: capabilities: binary store/restore, is known to fail.'
 make install
 make -C doc install-html docdir=/usr/share/doc/tar-1.35
 cd ..
@@ -979,4 +980,110 @@ pip3 install --no-index --no-user --find-links dist Jinja2
 cd ..
 rm -rf Jinja2-3.1.2
 #8.74
+tar -xpvf systemd-254.tar.gz
+cd systemd-254
+sed -i -e 's/GROUP="render"/GROUP="video"/' -e 's/GROUP="sgx", //' rules.d/50-udev-default.rules.in
+sed '/systemd-sysctl/s/^/#/' -i rules.d/99-systemd.rules.in
+mkdir -p build
+cd build
+meson setup --prefix=/usr --buildtype=release -Dmode=release -Ddev-kvm-mode=0660 -Dlink-udev-shared=false ..
+ninja udevadm systemd-hwdb $(grep -o -E "^build (src/libudev|src/udev|rules.d|hwdb.d)[^:]*" build.ninja | awk '{ print $2 }') $(realpath libudev.so --relative-to .)
+rm rules.d/90-vconsole.rules
+install -vm755 -d {/usr/lib,/etc}/udev/{hwdb,rules}.d
+install -vm755 -d /usr/{lib,share}/pkgconfig
+install -vm755 udevadm /usr/bin/
+install -vm755 systemd-hwdb /usr/bin/udev-hwdb
+ln -svfn ../bin/udevadm /usr/sbin/udevd
+cp -av libudev.so{,*[0-9]} /usr/lib/
+install -vm644 ../src/libudev/libudev.h /usr/include/
+install -vm644 src/libudev/*.pc /usr/lib/pkgconfig/
+install -vm644 src/udev/*.pc /usr/share/pkgconfig/
+install -vm644 ../src/udev/udev.conf /etc/udev/
+install -vm644 rules.d/* ../rules.d/{*.rules,README} /usr/lib/udev/rules.d/
+install -vm644 hwdb.d/* ../hwdb.d/{*.hwdb,README} /usr/lib/udev/hwdb.d/
+install -vm755 $(find src/udev -type f | grep -F -v ".") /usr/lib/udev
+tar -xvf ../../udev-lfs-20230818.tar.xz
+make -f udev-lfs-20230818/Makefile.lfs install
+tar -xvf ../../systemd-man-pages-254.tar.xz --no-same-owner --strip-components=1 -C /usr/share/man --wildcards '*/udev*' '*/libudev*' '*/systemd-'{hwdb,udevd.service}.8
+sed 's/systemd\(\\\?-\)/udev\1/' /usr/share/man/man8/systemd-hwdb.8 > /usr/share/man/man8/udev-hwdb.8
+sed 's|lib.*udevd|sbin/udevd|' /usr/share/man/man8/systemd-udevd.service.8 > /usr/share/man/man8/udevd.8
+rm /usr/share/man/man8/systemd-*.8
+udev-hwdb update
+cd ../..
+rm -rf systemd-254
+#8.75
+tar -xpvf man-db-2.11.2.tar.xz
+cd man-db-2.11.2
+./configure --prefix=/usr --docdir=/usr/share/doc/man-db-2.11.2 --sysconfdir=/etc --disable-setuid --enable-cache-owner=bin --with-browser=/usr/bin/lynx --with-vgrind=/usr/bin/vgrind --with-grap=/usr/bin/grap --with-systemdtmpfilesdir= --with-systemdsystemunitdir=
+make -j10
+make -k check
+echo 'LFS: man1/lexgrog.1 is known to fail.'
+make install
+cd ..
+rm -rf man-db-2.11.2
+#8.76
+tar -xpvf procps-ng-4.0.3.tar.xz
+cd procps-ng-4.0.3
+./configure --prefix=/usr --docdir=/usr/share/doc/procps-ng-4.0.3 --disable-static --disable-kill
+make -j10
+make check
+make install
+cd ..
+rm -rf procps-ng-4.0.3
+#8.77
+tar -xpvf util-linux-2.39.1.tar.xz
+cd util-linux-2.39.1
+sed -i '/test_mkfds/s/^/#/' tests/helpers/Makemodule.am
+./configure ADJTIME_PATH=/var/lib/hwclock/adjtime --bindir=/usr/bin --libdir=/usr/lib --runstatedir=/run --sbindir=/usr/sbin --disable-chfn-chsh --disable-login --disable-nologin --disable-su --disable-setpriv --disable-runuser --disable-pylibmount --disable-static --without-python --without-systemd --without-systemdsystemunitdir --docdir=/usr/share/doc/util-linux-2.39.1
+make -j10
+chown -Rv tester .
+su tester -c "make -k check"
+make install
+cd ..
+rm -rf util-linux-2.39.1
+#8.78
+tar -xpvf e2fsprogs-1.47.0.tar.gz
+cd e2fsprogs-1.47.0
+mkdir -v build
+cd build
+../configure --prefix=/usr --sysconfdir=/etc --enable-elf-shlibs --disable-libblkid --disable-libuuid --disable-uuidd --disable-fsck
+make -j10
+make check
+echo 'LFS: m_assume_storage_prezeroed is known to fail.'
+make install
+gunzip -v /usr/share/info/libext2fs.info.gz
+install-info --dir-file=/usr/share/info/dir /usr/share/info/libext2fs.info
+makeinfo -o doc/com_err.info ../lib/et/com_err.texinfo
+install -v -m644 doc/com_err.info /usr/share/info
+install-info --dir-file=/usr/share/info/dir /usr/share/info/com_err.info
+cd ../..
+rm -rf e2fsprogs-1.47.0
+#8.79
+tar -xpvf sysklogd-1.5.1.tar.gz
+cd sysklogd-1.5.1
+sed -i '/Error loading kernel symbols/{n;n;d}' ksym_mod.c
+sed -i 's/union wait/int/' syslogd.c
+make -j10
+make BINDIR=/sbin install
+cat > /etc/syslog.conf << "EOF"
+# Begin /etc/syslog.conf
+auth,authpriv.* -/var/log/auth.log
+*.*;auth,authpriv.none -/var/log/sys.log
+daemon.* -/var/log/daemon.log
+kern.* -/var/log/kern.log
+mail.* -/var/log/mail.log
+user.* -/var/log/user.log
+*.emerg *
+# End /etc/syslog.conf
+EOF
+cd ..
+rm -rf sysklogd-1.5.1
+#8.80
+tar -xpvf sysvinit-3.07.tar.xz
+cd sysvinit-3.07
+patch -Np1 -i ../sysvinit-3.07-consolidated-1.patch
+make -j10
+make install
+cd ..
+rm -rf sysvinit-3.07
 ```
