@@ -1113,8 +1113,9 @@ cd ..
 rm -rf sysvinit-3.07
 ```
 
-cleanup.sh
+stripping_and_cleanup.sh
 ```bash
+#8.82
 save_usrlib="$(cd /usr/lib; ls ld-linux*[^g])
     libc.so.6
     libthread_db.so.1
@@ -1169,8 +1170,118 @@ done
 
 unset BIN LIB save_usrlib online_usrbin online_usrlib
 
+#8.83
 rm -rf /tmp/*
 find /usr/lib /usr/libexec -name \*.la -delete
 find /usr -depth -name $(uname -m)-lfs-linux-gnu\* | xargs rm -rf
 userdel -r tester
+```
+
+system_configuration.sh
+```bash
+#9.2
+tar -xpvf lfs-bootscripts-20230728.tar.xz
+cd lfs-bootscripts-20230728
+make install
+cd ..
+rm -rf lfs-bootscripts-20230728
+#9.5.2
+cat > /etc/resolv.conf << "EOF"
+# Begin /etc/resolv.conf
+nameserver 8.8.8.8
+nameserver 8.8.4.4
+# End /etc/resolv.conf
+EOF
+#9.5.3
+echo "LFS" > /etc/hostname
+#9.5.4
+cat > /etc/hosts << "EOF"
+# Begin /etc/hosts
+127.0.0.1 localhost LFS
+::1 localhost ip6-localhost ip6-loopback
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+# End /etc/hosts
+EOF
+#9.6.2
+cat > /etc/inittab << "EOF"
+# Begin /etc/inittab
+id:3:initdefault:
+si::sysinit:/etc/rc.d/init.d/rc S
+l0:0:wait:/etc/rc.d/init.d/rc 0
+l1:S1:wait:/etc/rc.d/init.d/rc 1
+l2:2:wait:/etc/rc.d/init.d/rc 2
+l3:3:wait:/etc/rc.d/init.d/rc 3
+l4:4:wait:/etc/rc.d/init.d/rc 4
+l5:5:wait:/etc/rc.d/init.d/rc 5
+l6:6:wait:/etc/rc.d/init.d/rc 6
+ca:12345:ctrlaltdel:/sbin/shutdown -t1 -a -r now
+su:S06:once:/sbin/sulogin
+s1:1:respawn:/sbin/sulogin
+1:2345:respawn:/sbin/agetty --noclear tty1 9600
+2:2345:respawn:/sbin/agetty tty2 9600
+3:2345:respawn:/sbin/agetty tty3 9600
+4:2345:respawn:/sbin/agetty tty4 9600
+5:2345:respawn:/sbin/agetty tty5 9600
+6:2345:respawn:/sbin/agetty tty6 9600
+# End /etc/inittab
+EOF
+#9.6.4
+cat > /etc/sysconfig/clock << "EOF"
+# Begin /etc/sysconfig/clock
+UTC=1
+# Set this to any options you might need to give to hwclock,
+# such as machine hardware clock type for Alphas.
+CLOCKPARAMS=
+# End /etc/sysconfig/clock
+EOF
+#9.6.8.1
+sed -i.bak 's/#VERBOSE_FSCK=no/VERBOSE_FSCK=yes/' /etc/sysconfig/rc.site
+#9.7
+cat > /etc/profile << "EOF"
+# Begin /etc/profile
+export LANG=en_US.UTF-8
+# End /etc/profile
+EOF
+#9.8
+cat > /etc/inputrc << "EOF"
+# Begin /etc/inputrc
+# Modified by Chris Lynn <roryo@roryo.dynup.net>
+# Allow the command prompt to wrap to the next line
+set horizontal-scroll-mode Off
+# Enable 8-bit input
+set meta-flag On
+set input-meta On
+# Turns off 8th bit stripping
+set convert-meta Off
+# Keep the 8th bit for display
+set output-meta On
+# none, visible or audible
+set bell-style none
+# All of the following map the escape sequence of the value
+# contained in the 1st argument to the readline specific functions
+"\eOd": backward-word
+"\eOc": forward-word
+# for linux console
+"\e[1~": beginning-of-line
+"\e[4~": end-of-line
+"\e[5~": beginning-of-history
+"\e[6~": end-of-history
+"\e[3~": delete-char
+"\e[2~": quoted-insert
+# for xterm
+"\eOH": beginning-of-line
+"\eOF": end-of-line
+# for Konsole
+"\e[H": beginning-of-line
+"\e[F": end-of-line
+# End /etc/inputrc
+EOF
+#9.9
+cat > /etc/shells << "EOF"
+# Begin /etc/shells
+/bin/sh
+/bin/bash
+# End /etc/shells
+EOF
 ```
