@@ -1285,3 +1285,38 @@ cat > /etc/shells << "EOF"
 # End /etc/shells
 EOF
 ```
+
+chap10-install.sh
+```bash
+#10.2
+cat > /etc/fstab << "EOF"
+# Begin /etc/fstab
+/dev/vda4 / ext4 defaults 1 1                 
+/dev/vda3 swap swap pri=1 0 0
+proc /proc proc nosuid,noexec,nodev 0 0
+sysfs /sys sysfs nosuid,noexec,nodev 0 0
+devpts /dev/pts devpts gid=5,mode=620 0 0
+tmpfs /run tmpfs defaults 0 0
+devtmpfs /dev devtmpfs mode=0755,nosuid 0 0
+tmpfs /dev/shm tmpfs nosuid,nodev 0 0
+cgroup2 /sys/fs/cgroup cgroup2 nosuid,noexec,nodev 0 0
+# End /etc/fstab                                      
+EOF
+#10.3
+make mrproper
+make defconfig
+make menuconfig
+make -j10
+make modules_install
+cp -iv arch/arm64/boot/Image /boot/vmlinuz-6.4.12-lfs-12.0
+cp -iv System.map /boot/System.map-6.4.12
+cp -iv .config /boot/config-6.4.12
+cp -r Documentation -T /usr/share/doc/linux-6.4.12
+install -v -m755 -d /etc/modprobe.d
+cat > /etc/modprobe.d/usb.conf << "EOF"
+# Begin /etc/modprobe.d/usb.conf
+install ohci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i ohci_hcd ; true
+install uhci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i uhci_hcd ; true
+# End /etc/modprobe.d/usb.conf
+EOF
+```
