@@ -143,7 +143,6 @@ tar -cJpf $HOME/lfs-12.0_$(date +%F_%H.%M.%S).tar.xz .
 ```
 to make a backup.
 
-chap8-install.sh
 ```bash
 #8.3
 cd sources/
@@ -1135,8 +1134,8 @@ make install
 cd ..
 rm -rf sysvinit-3.07
 ```
+to install chapter 8 packages.
 
-stripping_and_cleanup.sh
 ```bash
 #8.82
 save_usrlib="$(cd /usr/lib; ls ld-linux*[^g])
@@ -1199,8 +1198,8 @@ find /usr/lib /usr/libexec -name \*.la -delete
 find /usr -depth -name $(uname -m)-lfs-linux-gnu\* | xargs rm -rf
 userdel -r tester
 ```
+to strip and clean up.
 
-system_configuration.sh
 ```bash
 #9.2
 tar -xpvf lfs-bootscripts-20230728.tar.xz
@@ -1308,8 +1307,8 @@ cat > /etc/shells << "EOF"
 # End /etc/shells
 EOF
 ```
+to apply system configurations.
 
-chap10-install.sh
 ```bash
 #10.2
 cat > /etc/fstab << "EOF"
@@ -1343,3 +1342,4 @@ install uhci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i uhci_hcd ; true
 # End /etc/modprobe.d/usb.conf
 EOF
 ```
+to install the kernel.
