@@ -117,7 +117,7 @@ umount $LFS/dev/pts
 umount $LFS/{sys,proc,run,dev}
 findmnt | grep $LFS
 cd $LFS
-tar -cJpf $HOME/lfs-12.0_$(date +%F_%H.%M.%S).tar.xz .
+time { tar -cJpvf $HOME/lfs-12.0_$(date +%F_%H.%M.%S).tar.xz .; }
 ```
 to make a backup.
 
