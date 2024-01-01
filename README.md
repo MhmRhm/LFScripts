@@ -1349,6 +1349,7 @@ EOF
 
 To name the distribution:
 ```bash
+#11.1
 echo 12.0 > /etc/lfs-release
 cat > /etc/lsb-release << "EOF"
 DISTRIB_ID="Linux From Scratch"
@@ -1367,6 +1368,7 @@ EOF
 
 To exit chroot and reboot:
 ```bash
+#11.3
 logout
 umount -v $LFS/dev/pts
 mountpoint -q $LFS/dev/shm && umount $LFS/dev/shm
