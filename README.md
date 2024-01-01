@@ -1,6 +1,11 @@
 # LFScripts
 Scripts to build Linux From Scratch
 
+```bash
+apt-get install bison gawk m4 texinfo build-essential
+```
+to install required host packages.
+
 version-check.sh
 ```bash
 #!/bin/bash
