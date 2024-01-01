@@ -3,6 +3,8 @@ Scripts to build Linux From Scratch
 
 ```bash
 apt-get install bison gawk m4 texinfo build-essential
+rm /bin/sh
+ln -s /bin/bash /bin/sh
 ```
 to install required host packages.
 
