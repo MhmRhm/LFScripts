@@ -8,7 +8,6 @@ ln -s /bin/bash /bin/sh
 ```
 to install required host packages.
 
-version-check.sh
 ```bash
 #!/bin/bash
 # A script to list version numbers of critical development tools
@@ -101,8 +100,24 @@ else
    echo "OK: nproc reports $(nproc) logical cores are available"
 fi
 ```
+to check requirements.
 
-pre-chroot.sh
+```bash
+export LFS=/mnt/lfs
+mkdir -p -v $LFS
+fdisk /dev/vda
+mkfs -v -t ext4 /dev/vda4
+mount -v -t ext4 /dev/vda4 $LFS
+```
+to make a file system for LFS.
+
+```bash
+cd $LFS
+rm -rf ./*
+tar -xpf $HOME/lfs-temp-tools-12.0.tar.xz
+```
+to restore a backup.
+
 ```bash
 mkdir -pv $LFS/{dev,proc,sys,run}
 mount -v --bind /dev $LFS/dev
@@ -117,8 +132,8 @@ else
 fi
 chroot "$LFS" /usr/bin/env -i HOME=/root TERM="$TERM" PS1='(lfs chroot) \u:\w\$ ' PATH=/usr/bin:/usr/sbin /bin/bash --login
 ```
+to continue after restoring a backup.
 
-backup.sh
 ```bash
 mountpoint -q $LFS/dev/shm && umount $LFS/dev/shm
 umount $LFS/dev/pts
@@ -126,6 +141,7 @@ umount $LFS/{sys,proc,run,dev}
 cd $LFS
 tar -cJpf $HOME/lfs-12.0_$(date +%F_%H.%M.%S).tar.xz .
 ```
+to make a backup.
 
 chap8-install.sh
 ```bash
