@@ -1325,6 +1325,8 @@ cgroup2 /sys/fs/cgroup cgroup2 nosuid,noexec,nodev 0 0
 # End /etc/fstab                                      
 EOF
 #10.3
+tar -xpvf linux-6.4.12.tar.xz
+cd linux-6.4.12
 make mrproper
 make defconfig
 make menuconfig
@@ -1343,3 +1345,34 @@ install uhci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i uhci_hcd ; true
 EOF
 ```
 to install the kernel.
+
+```bash
+echo 12.0 > /etc/lfs-release
+cat > /etc/lsb-release << "EOF"
+DISTRIB_ID="Linux From Scratch"
+DISTRIB_RELEASE="12.0"
+DISTRIB_CODENAME="<your name here>"
+DISTRIB_DESCRIPTION="Linux From Scratch"
+EOF
+cat > /etc/os-release << "EOF"
+NAME="Linux From Scratch"
+VERSION="12.0"
+ID=lfs
+PRETTY_NAME="Linux From Scratch 12.0"
+VERSION_CODENAME="<your name here>"
+EOF
+```
+to name the distribution.
+
+```bash
+logout
+umount -v $LFS/dev/pts
+mountpoint -q $LFS/dev/shm && umount $LFS/dev/shm
+umount -v $LFS/dev
+umount -v $LFS/run
+umount -v $LFS/proc
+umount -v $LFS/sys
+umount -v $LFS
+reboot
+```
+to exit chroot and reboot.
