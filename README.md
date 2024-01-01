@@ -112,6 +112,16 @@ mount -v -t ext4 /dev/vda4 $LFS
 to make a file system for LFS.
 
 ```bash
+mountpoint -q $LFS/dev/shm && umount $LFS/dev/shm
+umount $LFS/dev/pts
+umount $LFS/{sys,proc,run,dev}
+findmnt | grep $LFS
+cd $LFS
+tar -cJpf $HOME/lfs-12.0_$(date +%F_%H.%M.%S).tar.xz .
+```
+to make a backup.
+
+```bash
 cd $LFS
 rm -rf ./*
 tar -xpf $HOME/lfs-temp-tools-12.0.tar.xz
@@ -133,15 +143,6 @@ fi
 chroot "$LFS" /usr/bin/env -i HOME=/root TERM="$TERM" PS1='(lfs chroot) \u:\w\$ ' PATH=/usr/bin:/usr/sbin /bin/bash --login
 ```
 to continue after restoring a backup.
-
-```bash
-mountpoint -q $LFS/dev/shm && umount $LFS/dev/shm
-umount $LFS/dev/pts
-umount $LFS/{sys,proc,run,dev}
-cd $LFS
-tar -cJpf $HOME/lfs-12.0_$(date +%F_%H.%M.%S).tar.xz .
-```
-to make a backup.
 
 ```bash
 #8.3
