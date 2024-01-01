@@ -1,13 +1,14 @@
 # LFScripts
 Scripts to build Linux From Scratch
 
+To install required host packages:
 ```bash
 apt-get install bison gawk m4 texinfo build-essential
 rm /bin/sh
 ln -s /bin/bash /bin/sh
 ```
-to install required host packages.
 
+To check requirements:
 ```bash
 #!/bin/bash
 # A script to list version numbers of critical development tools
@@ -100,8 +101,8 @@ else
    echo "OK: nproc reports $(nproc) logical cores are available"
 fi
 ```
-to check requirements.
 
+To make a file system for LFS:
 ```bash
 export LFS=/mnt/lfs
 mkdir -p -v $LFS
@@ -109,8 +110,8 @@ fdisk /dev/vda
 mkfs -v -t ext4 /dev/vda4
 mount -v -t ext4 /dev/vda4 $LFS
 ```
-to make a file system for LFS.
 
+To make a backup:
 ```bash
 mountpoint -q $LFS/dev/shm && umount $LFS/dev/shm
 umount $LFS/dev/pts
@@ -119,15 +120,15 @@ findmnt | grep $LFS
 cd $LFS
 time { tar -cJpvf $HOME/lfs-12.0_$(date +%F_%H.%M.%S).tar.xz .; }
 ```
-to make a backup.
 
+To restore a backup:
 ```bash
 cd $LFS
 rm -rf ./*
 tar -xpf $HOME/lfs-temp-tools-12.0.tar.xz
 ```
-to restore a backup.
 
+To continue after restoring a backup:
 ```bash
 mkdir -pv $LFS/{dev,proc,sys,run}
 mount -v --bind /dev $LFS/dev
@@ -142,8 +143,8 @@ else
 fi
 chroot "$LFS" /usr/bin/env -i HOME=/root TERM="$TERM" PS1='(lfs chroot) \u:\w\$ ' PATH=/usr/bin:/usr/sbin /bin/bash --login
 ```
-to continue after restoring a backup.
 
+To install chapter 8 packages:
 ```bash
 #8.3
 cd sources/
@@ -1135,8 +1136,8 @@ make install
 cd ..
 rm -rf sysvinit-3.07
 ```
-to install chapter 8 packages.
 
+To strip debug symbols and clean up:
 ```bash
 #8.82
 save_usrlib="$(cd /usr/lib; ls ld-linux*[^g])
@@ -1199,8 +1200,8 @@ find /usr/lib /usr/libexec -name \*.la -delete
 find /usr -depth -name $(uname -m)-lfs-linux-gnu\* | xargs rm -rf
 userdel -r tester
 ```
-to strip and clean up.
 
+To apply system configurations:
 ```bash
 #9.2
 tar -xpvf lfs-bootscripts-20230728.tar.xz
@@ -1308,8 +1309,8 @@ cat > /etc/shells << "EOF"
 # End /etc/shells
 EOF
 ```
-to apply system configurations.
 
+To install the kernel:
 ```bash
 #10.2
 cat > /etc/fstab << "EOF"
@@ -1345,8 +1346,8 @@ install uhci_hcd /sbin/modprobe ehci_hcd ; /sbin/modprobe -i uhci_hcd ; true
 # End /etc/modprobe.d/usb.conf
 EOF
 ```
-to install the kernel.
 
+To name the distribution:
 ```bash
 echo 12.0 > /etc/lfs-release
 cat > /etc/lsb-release << "EOF"
@@ -1363,8 +1364,8 @@ PRETTY_NAME="Linux From Scratch 12.0"
 VERSION_CODENAME="<your name here>"
 EOF
 ```
-to name the distribution.
 
+To exit chroot and reboot:
 ```bash
 logout
 umount -v $LFS/dev/pts
@@ -1376,4 +1377,3 @@ umount -v $LFS/sys
 umount -v $LFS
 reboot
 ```
-to exit chroot and reboot.
